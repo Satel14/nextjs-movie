@@ -1,91 +1,106 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+"use client";
+import './globals.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import MovieList from './MovieList';
+import Search from './Search'
+import AddFavorites from './AddFavorites';
+import RemoveFavorites from './RemoveFavorites';
+import MovieInfoComponent from './MovieInfoComponent';
+import { Movie } from './types/movie'
+export default function Home(props: any) {
 
-const inter = Inter({ subsets: ['latin'] })
+  const [movies, setMovies] = useState([])
+  const [searchValue, setSearchValue] = useState('')
+  const [favorites, setFavorites] = useState<Movie[]>([]);
+  const [selectedMovie, onMovieSelect] = useState<string>('');
+  const getMovieRequest = async (searchValue: any) => {
+    const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=673b3cc4`
 
-export default function Home() {
+    const response = await fetch(url)
+    const responseJson = await response.json()
+
+    return responseJson;
+  }
+
+  useEffect(() => {
+    getMovieRequest(searchValue).then((responseJson) => {
+      if (responseJson.Search) {
+        setMovies(responseJson.Search);
+      } else {
+        setMovies([]);
+      }
+    });
+  }, [searchValue])
+
+  useEffect(() => {
+    const moveFavorites = JSON.parse(
+      localStorage.getItem('nextjs-movie') || "{}"
+    );
+    setFavorites(moveFavorites)
+  }, [])
+
+  const addFavoritesMovie = (movie: any) => {
+    if (favorites.some(fav => fav.imdbID === movie.imdbID)) {
+      toast.error('This movie is already in your favorites list');
+      return;
+    }
+
+    const newFavoriteList = [...favorites, movie]
+    setFavorites(newFavoriteList)
+    saveToLocalStorage(newFavoriteList)
+    toast.success('Movie was successfully added to your favorites list');
+  }
+
+  const removeFavoritesMovie = (movie: any) => {
+    const index = favorites.findIndex(favorite => favorite.imdbID === movie.imdbID)
+    if (index !== -1) {
+      const newFavoriteList = [...favorites]
+      newFavoriteList.splice(index, 1)
+      setFavorites(newFavoriteList)
+      saveToLocalStorage(newFavoriteList)
+      toast.success('Movie removed from favorites');
+    }
+  }
+
+  const saveToLocalStorage = (items: any) => {
+    localStorage.setItem('nextjs-movie', JSON.stringify(items))
+  }
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className='container-fluid movie-app'>
+      <div className='row d-flex align-items-center mt-4 mb-4'>
+        <div className='col'>
+          <h1>Movies</h1>
+        </div>
+        <Search searchValue={searchValue} setSearchValue={setSearchValue} />
+      </div>
+      <div className='infoMovies'>
+        {selectedMovie && <MovieInfoComponent selectedMovie={selectedMovie} onMovieSelect={() => { onMovieSelect('') }} />}
+      </div>
+      <div className='container-movies'>
+
+        {movies.length > 0 ? (
+          <MovieList
+            movies={movies}
+            handleFavoritesClick={addFavoritesMovie}
+            favoritesComponents={AddFavorites}
+            onMovieSelect={onMovieSelect}
+          />
+        ) : (
+          <div>No movies found.</div>
+        )}
+      </div>
+      <div className='row d-flex align-items-center mt-4 mb-4'>
+        <div className='col'>
+          <h1>Favorites</h1>
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
+      <div className='container-movies'>
+        <MovieList movies={favorites} handleFavoritesClick={removeFavoritesMovie} favoritesComponents={RemoveFavorites} onMovieSelect={onMovieSelect} />
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <ToastContainer />
+    </div>
   )
 }
