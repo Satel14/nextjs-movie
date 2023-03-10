@@ -20,7 +20,9 @@ const MovieList: React.FC<Props> = ({ movies, favoritesComponents, onMovieSelect
   const moviesPerPVideo = 5;
   const indexOfLastMovie = currentPage * moviesPerPVideo;
   const indexOfFirstMovie = indexOfLastMovie - moviesPerPVideo;
-  const currentMovies = movies.slice(indexOfFirstMovie, indexOfLastMovie);
+   const currentMovies = movies.filter((movie, index) => {
+    return index >= indexOfFirstMovie && index < indexOfLastMovie;
+  });
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 

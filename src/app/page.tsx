@@ -17,7 +17,7 @@ export default function Home(props: any) {
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [selectedMovie, onMovieSelect] = useState<string>('');
   const getMovieRequest = async (searchValue: any) => {
-    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}?i=${searchValue}&apikey=${process.env.NEXT_PUBLIC_API_KEY}`
+    const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=${process.env.NEXT_PUBLIC_API_KEY}`
 
     const response = await fetch(url)
     const responseJson = await response.json()
