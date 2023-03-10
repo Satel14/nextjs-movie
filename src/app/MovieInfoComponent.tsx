@@ -27,7 +27,7 @@ const MovieInfoComponent: React.FC<Props> = ({ selectedMovie, onMovieSelect }) =
   useEffect(() => {
     const fetchMovieInfo = async () => {
       try {
-        const response = await Axios.get(`https://www.omdbapi.com/?i=${selectedMovie}&apikey=673b3cc4`);
+        const response = await Axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}?i=${selectedMovie}&apikey=${process.env.NEXT_PUBLIC_API_KEY}`);
         setMovieInfo(response.data);
       } catch (error) {
         console.error(error);
