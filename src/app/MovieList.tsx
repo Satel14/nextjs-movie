@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import AddFavorites from './AddFavorites';
+import RemoveFavorites from './RemoveFavorites';
 
 interface Movie {
   Poster: string;
@@ -10,17 +11,17 @@ interface Movie {
 
 interface Props {
   movies: Movie[];
-  favoritesComponents: React.FC;
+  favoritesComponents: React.ComponentType;
   onMovieSelect: (imdbID: string) => void;
   handleFavoritesClick: (movie: Movie) => void;
 }
 
 const MovieList: React.FC<Props> = ({ movies, favoritesComponents, onMovieSelect, handleFavoritesClick }) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);;
   const moviesPerPVideo = 5;
   const indexOfLastMovie = currentPage * moviesPerPVideo;
   const indexOfFirstMovie = indexOfLastMovie - moviesPerPVideo;
-   const currentMovies = movies.filter((movie, index) => {
+  const currentMovies = movies.filter((movie, index) => {
     return index >= indexOfFirstMovie && index < indexOfLastMovie;
   });
 

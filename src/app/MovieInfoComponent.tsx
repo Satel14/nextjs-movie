@@ -71,7 +71,7 @@ const MovieInfoComponent: React.FC<Props> = ({ selectedMovie, onMovieSelect }) =
               Plot: <span>{movieInfo?.Plot}</span>
             </div>
           </div>
-          <div onClick={onMovieSelect}>X</div>
+          <div onClick={onMovieSelect}>Close</div>
         </>
       ) : (
         'Loading...'
